@@ -29,6 +29,7 @@ const WithIntlSettings: WidgetSettings = ({ properties = {}, exportProp }) => {
     const [siteSearch, setSiteSearch] = useState(properties.siteSearch);
     const [sites, setSites] = useState(properties.sites);
     const [url, setSiteURL] = useState('');
+    const [domain, setDomain] = useState('');
 
     const [interest, setInterest] = useState('');
     const [response, setResponse] = useState('');
@@ -36,10 +37,14 @@ const WithIntlSettings: WidgetSettings = ({ properties = {}, exportProp }) => {
     const [excerpt, setExcerpt] = useState(properties.excerpt || 1);
     const [nonews, setNonews] = useState(properties.nonews || 1);
 
+    const [tenant, setTenant] = useState('');
+    const [appid, setAppid] = useState('');
+    const [secret, setSecret] = useState('');
+
     const [useimage, setUseImage] = useState<boolean>(properties.useimage || false);
     
     
-
+    const [baseURL, setBaseURL] = useState(properties.baseURL);
 
     const [nonewsId, setNonewsId] = useState(properties.nonewsId);
     const [useGreyScale, setUseGreyScale] = useState<boolean>(properties.useGreyScale || false);
@@ -53,12 +58,19 @@ const WithIntlSettings: WidgetSettings = ({ properties = {}, exportProp }) => {
     useExportProps(useBlur, 'useBlur', properties, exportProp);
     useExportProps(blur, 'blur', properties, exportProp);
 
+    useExportProps(baseURL, 'baseurl', properties, exportProp);
+
     useExportProps(pages, 'news', properties, exportProp);
     useExportProps(sites, 'foundsites', properties, exportProp);
     useExportProps(url, 'siteurl', properties, exportProp);
+    useExportProps(domain, 'domain', properties, exportProp);
     useExportProps(excerpt, 'excerpt', properties, exportProp);
     useExportProps(nonews, 'nonews', properties, exportProp);
     useExportProps(useimage, 'useimage', properties, exportProp);
+
+    useExportProps(tenant, 'tenant', properties, exportProp);
+    useExportProps(appid, 'appid', properties, exportProp);
+    useExportProps(secret, 'secret', properties, exportProp);
 
 
     const anchorSimpleRef = React.useRef(null);
@@ -74,14 +86,15 @@ const WithIntlSettings: WidgetSettings = ({ properties = {}, exportProp }) => {
     const [showImageSwitch, setUseImageSwitch] = useState(false);
 
 
-    console.log('_________________%%%%%%%% selected pages', pages);
+    //console.log('_________________%%%%%%%% selected pages', pages);
    
    
     
-console.log("SEARCH " + siteSearch)
+//console.log("SEARCH " + siteSearch)
      const onSimpleMenuSelected = (item: string, site:string, url:string) => () => {
-       // console.log('_________________%%%%%%%% selected item', item);
-      //  console.log('_________________%%%%%%%% selected site', site);
+        console.log('_________________SSSSSSSSSS selected item', item);
+        console.log('_________________SSSSSSSSSSSSSS selected site', site);
+        console.log('_________________SSSSSSSSSSSSSS selected url', url);
        
         
         setSiteId(item);
@@ -90,6 +103,8 @@ console.log("SEARCH " + siteSearch)
         setComments(true)
         setSiteURL(url)
         closeSimpleMenu();
+        getDomain(url);
+        
     };
 //______________________________________________________________________________________
 
@@ -104,6 +119,18 @@ interface LooseObject2{
     newsDate : string;
     newsId: string;
 }
+
+function getDomain(url:any)
+{
+  //https://cordapse.sharepoint.com/_api/v2.0/sharepoint:/sites/TheHub/SitePages/Andy
+
+  var newResult = url.substring(0, url.lastIndexOf("/") );
+  console.log("___________________SPLIT " + newResult);
+  let domain = (new URL(url));
+  console.log("___________________DOMAIN " + domain.hostname);
+  return domain;
+}
+
 
 
 
@@ -145,6 +172,12 @@ function listSites(res:any):JSX.Element {
   //  console.log("______LIST SITES JSON " + JSON.stringify(res))
     let list1 = new Array;
   //  console.log("___________TYPE OF RES " + typeof(res))
+//var burl = res[0].id;
+//console.log("____RES " + JSON.stringify(res))
+//console.log("______BURL 1 " + burl)
+//burl = burl.split(",")[0]
+//console.log("______BURL 2 " + burl)
+//setBaseURL(burl)
 
     for (var i=0; i<res.length; i++) {
         //console.log(res[i].id);
@@ -154,10 +187,13 @@ function listSites(res:any):JSX.Element {
         obj.siteID = res[i].id;
         obj.url = res[i].webUrl;
         list1.push(obj)
-       // console.log("_____LS __ " + obj.siteName + " " + obj.siteID)
+        //console.log("_____LS __ " + obj.siteID)
+       // console.log("_____BASE __ " + obj.siteID.split(",")[0])
+       
 
     }
-//console.log("______show ddl ? " + showDDL)
+    
+
     if(showDDL)
     {
     return(
@@ -231,7 +267,9 @@ return(<div></div>)
        
         const article = {        
             text: siteid,
-                  
+            appid: appid,
+            secret: secret,
+            tenentid: tenant  
         };
      
         useEffect(() => {
@@ -268,8 +306,8 @@ return(<div></div>)
                 obj.published = newRes[i].lastModifiedDateTime;
                 obj.url = newRes[i].webUrl;
                 list1.push(obj)
-              //  console.log("_____LS2 __ " + obj.id + " " + obj.title)
-               // console.log("_____LS __ " + obj.siteName + " " + obj.siteID)
+                console.log("_____LS2 __ " + obj.id + " " + obj.title)
+                
         
             }
           
@@ -286,7 +324,87 @@ return(<div></div>)
 
     }
 
-    
+    function ShowTenant(res:any):JSX.Element { 
+     
+      function HandleTenant(event:any) {
+
+        setTenant(event.target.value);
+        
+        
+      //  console.log("___________HANDLE SITE SELECTION: " + event.target.value)
+     };
+ 
+     return (
+      
+         <div className="searchcontainer">
+            <input
+              className="searchInput"
+              type="text"
+              placeholder="Enter your Tenant ID"
+              value={tenant}
+              onChange={HandleTenant}
+            />
+           
+         </div>
+         
+      );
+      }; // end details
+
+      function ShowAppID(res:any):JSX.Element { 
+     
+        
+      
+   
+      function HandleAppID(event:any) {
+
+        setAppid(event.target.value);
+        
+        
+      //  console.log("___________HANDLE SITE SELECTION: " + event.target.value)
+     };
+ 
+     return (
+      
+         <div className="searchcontainer">
+            <input
+              className="searchInput"
+              type="text"
+              placeholder="Enter your Application ID"
+              value={appid}
+              onChange={HandleAppID}
+            />
+           
+         </div>
+         
+      );
+      }; // end appid
+
+
+      function ShowSecret(res:any):JSX.Element { 
+
+      function HandleSecret(event:any) {
+
+        setSecret(event.target.value);
+        
+        
+      //  console.log("___________HANDLE SITE SELECTION: " + event.target.value)
+     };
+ 
+     return (
+      
+         <div className="searchcontainer">
+            <input
+              className="searchInput"
+              type="text"
+              placeholder="Enter your Secret"
+              value={secret}
+              onChange={HandleSecret}
+            />
+           
+         </div>
+         
+      );
+      }; // end secret
     
   function SearchSites (search:any) {
    // console.log("___________SS1 : " + search)
@@ -294,6 +412,9 @@ return(<div></div>)
    
     const article = {        
         text: search,
+        appid: appid,
+        secret: secret,
+        tenentid: tenant
               
     };
  
@@ -311,7 +432,7 @@ return(<div></div>)
           // Likely you may want to set some state
         //  console.log("___________AXIOS START : ____________________")
           setResponse(res.data.value);
-        //  console.log(res.data)
+         //console.log("_______________________ SS " + JSON.stringify(res.data.value))
         //  console.log("___________AXIOS END : ____________________")
           setDDL(true)
          
@@ -323,6 +444,8 @@ return(<div></div>)
     };
 
     
+
+  
  
     function HandleChange(event:any) {
 
@@ -352,13 +475,14 @@ return(<div></div>)
            </Button>
         </div>
      );
-  }; // end
+  }; // end search
 
 
   function showNonewsSlider(siteid:any):JSX.Element { 
     if(showDDL)
     {
       return (
+        <div className='newsSlider'>
   <Slider
                     label={(<FormattedMessage id="settings.nonews_value_title" />) as any}
                     helper={(<FormattedMessage id="settings.nonews_value_desc" />) as any}
@@ -367,7 +491,9 @@ return(<div></div>)
                     value={nonews}
                     onChange={setNonews}
                 />
+                </div>
       )
+      
     }
     else
                     return(<div></div>)
@@ -377,6 +503,7 @@ return(<div></div>)
     if(showDDL)
     {
       return (
+<div className='newsSlider'>
   <Slider
                     label={(<FormattedMessage id="settings.excerpt_value_title" />) as any}
                     helper={(<FormattedMessage id="settings.excerpt_value_desc" />) as any}
@@ -386,6 +513,7 @@ return(<div></div>)
                     onChange={setExcerpt}
                     
                 />
+                </div>
       )
     }
     else
@@ -405,7 +533,9 @@ return(<div></div>)
 else
                 return(<div></div>)
 }
-
+  const ten = ShowTenant(tenant)
+  const app = ShowAppID(appid)
+  const sec = ShowSecret(secret)
   const searchBox = SearchSites(interest);
   const searchBut = searchButton(interest);
   const  dropDown = listSites(response);
@@ -423,7 +553,9 @@ else
   
     return (
         <>
-
+{ten}
+{app}
+{sec}
 {searchBox}
 {searchBut}
 {dropDown}

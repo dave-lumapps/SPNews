@@ -12,8 +12,8 @@ const partnerId = {
 };
 
 const extensionId = {
-    beta: '270116875223533602430165880013632809308',
-    production: '270116875223533602430165880013632809308',
+    beta: '',
+    production: '',
 };
 
 const description = {

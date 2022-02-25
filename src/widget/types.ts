@@ -17,6 +17,8 @@ export interface SampleAppParams {
     excerpt:number;
     nonews:number;
     useimage:boolean;
+    baseURL:string;
+    domain:URL;
     
 }
 

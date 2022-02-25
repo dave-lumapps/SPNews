@@ -20,6 +20,7 @@ import messagesFr from '../translations/fr.json';
 
 import defaultGlobalSettings from './defaultGlobalSettings';
 import { isPlainObject, keys } from 'lodash';
+import { mdiNewspaperVariantMultipleOutline } from '@lumx/icons';
 
 
 
@@ -35,7 +36,7 @@ const Widget: Widget = ({ value = {}, globalValue = {}, theme = Theme.light }) =
     const [url, setUrl] = useState<string | undefined>();
     const [error, setError] = useState<string>();
 
-    const { sited, nonewsId, useGreyScale, useBlur, blur, pages, interest, news, siteurl, excerpt,nonews, useimage }: any = value;
+    const { sited, nonewsId, useGreyScale, useBlur, blur, pages, interest, news, siteurl, excerpt,nonews, useimage, baseurl, domain }: any = value;
     const [testy, setTesty] = useState('');
     
     const { baseUrl = defaultGlobalSettings.baseUrl }: any = globalValue;
@@ -43,7 +44,8 @@ const Widget: Widget = ({ value = {}, globalValue = {}, theme = Theme.light }) =
     console.log("********************* PAGES : " + pages)
     console.log("********************* EXCERPT : " + excerpt)
     console.log("********************* NONEWS : " + nonews)
-    console.log("********************* USEIMAGE : " + useimage)
+    console.log("********************* SITEURL : " + siteurl
+    )
 
 if(news !== undefined)
 {
@@ -107,27 +109,35 @@ if(news !== undefined)
         class:string;
         level:string;
         version:string;
+        listid:string;
     
     
     }
  //   console.log("___________NEWS 1 " + JSON.stringify(news))
     const [list, setList] = useState([]);
-    //const z = JSON.parse(news)
-    //setList(z)
-
-    //console.log("___________________________set list " + z)
-
-    
    
-    
-//    console.log("___________TYPE OF NEWS " + typeof(news))
- //   console.log("___________TYPE OF TESTY 1" + typeof(testy))
-    //setTesty(news)
- //   console.log("___________TYPE OF TESTY 2" + typeof(testy))
+
+ function createImgUrl(url: any)
+ {
+     //get list id
+     //get item id
+     //call the graph api
+     //https://graph.microsoft.com/v1.0/sites/cordapse.sharepoint.com:/sites/TheHub:/lists/82C0AD37-3D97-499B-A437-68B548CAA8C6/items/5/driveItem/thumbnails/0/large
+     //bring back the response.url
+
+     var newUrl = "";
+     console.log("22222222222222222222222 SITE URL " + url)
+     var temp1 = url.replace("sites", "_api/v2.0/sharepoint:/sites")
+     console.log("33333333333333333333333 temp " + temp1)
+     var temp2 = temp1 + ":/driveItem/thumbnails/0/c200x200/content?preferNoRedirect=true"
+     console.log("44444444444444444444444444 temp " + temp2)
+     newUrl = temp2
+     return newUrl;
+ }
 
     function ListPagesTest(res:any) { 
    //     console.log("___________TYPE OF TEST" + typeof(res))
-    //    console.log("_______LISTING PAGES " + res)
+        console.log("_______LISTING PAGES " + JSON.stringify(res))
     
         let list = new Array;
     
@@ -140,24 +150,29 @@ if(news !== undefined)
             var str;
             var obj={} as LooseObject;
             console.log("stat of use image : " + useimage)
+            
+           
+
+            obj.id = res.value[key].id;
+            obj.title = res.value[key].title;
+            obj.published = res.value[key].lastModifiedDateTime;
+            obj.url = siteurl +"/"+ res.value[key].webUrl;
+            
+            obj.img = createImgUrl(siteurl +"/"+ res.value[key].webUrl)
+            obj.author = res.value[key].createdBy.user.displayName;
+            obj.level = res.value[key].publishingState.level;
+            obj.version = res.value[key].publishingState.versionId;
+            
             if(useimage === true)
             {
                 obj.img = "https://i0.wp.com/office365itpros.com/wp-content/uploads/2019/02/Sharepoint365NewIcon.png"
                 obj.class = "hasimage"
             }
-            else
-            {
-                obj.img = ""
-                obj.class = "hasnoimage"
-            }
+            
            
-            obj.id = res.value[key].id;
-            obj.title = res.value[key].title;
-            obj.published = res.value[key].lastModifiedDateTime;
-            obj.url = siteurl +"/"+ res.value[key].webUrl;
-            obj.author = res.value[key].createdBy.user.displayName;
-            obj.level = res.value[key].publishingState.level;
-            obj.version = res.value[key].publishingState.versionId;
+           
+
+            
             
             if(res.value[key].webParts[0].type = "rte")
             {
@@ -182,7 +197,7 @@ if(news !== undefined)
 
           });
         }
-        console.log(JSON.stringify(list))
+        //console.log(JSON.stringify(list))
         if(res)
     {
 

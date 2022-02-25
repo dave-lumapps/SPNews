@@ -12,7 +12,7 @@
 }
 .lumx-expansion-panel__wrapper
 {
-  max-height:600px !important
+  max-height: 1200px !important;
 }
 .searchcontainer
 {
@@ -83,6 +83,14 @@
 {
   width:90%;
   margin-bottom:2%;
+  
+}
+.newsImage img
+{
+  object-fit: cover;
+  width: 300px;
+  height:200px;
+  
 }
 .hasimage
 {
